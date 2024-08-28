@@ -3,7 +3,8 @@ import { AllocationCell, Course, CourseCreditsSummary, Lecturer, LecturerHoursSu
 import Button from '@mui/material/Button';
 import { styled } from '@mui/material/styles';
 import { Grid, TextField, Typography } from '@mui/material';
-import { calculateTotalLectureHours, calculateTotalTutorialHours } from '../Utils/calculations';
+import { calculateTotalLectureHours, calculateTotalSmallGroupDiscussionHours, calculateTotalTutorialHours } from '../Utils/calculations';
+import { useNavigate } from 'react-router-dom';
 
 type AllocationProps = {
     coursesList: Course[];
@@ -16,15 +17,32 @@ const CancelButton = styled(Button)({
     fontSize: 16,
 });
 
+type HoursPerCreditForActivity = {
+    activity: number;
+    noOfHoursPerCredit?: number;
+    noOfHoursPerEvent?: number;
+};
+
 export const AllocationPlan = () => {
     const [loading, setLoading] = useState(true);
     const [courses, setCourses] = useState<Course[]>([]);
     const [lecturers, setLecturers] = useState<Lecturer[]>([]);
     const [courseSummaries, setCourseSummaries] = useState<CourseCreditsSummary[]>([]);
-
     const [lecturerSummaries, setLecturerSummaries] = useState<LecturerHoursSummary[]>([]);
     const [allocationCells, setAllocationCells] = useState<AllocationCell[][]>([]);
     const [count, setCount] = useState<number>(0);
+    const navigate = useNavigate();
+    const [activityHours, setActivityHours] = useState<HoursPerCreditForActivity[] | null>(null);
+    const [groupDiscussionHours, setGroupDiscussionHours] = useState<number>(0);
+
+    async function fetchActivityHours() {
+            const response = await fetch('allocation/hours');
+            if (!response.ok) {
+                throw new Error('Network response was not ok');
+            }
+            const data: HoursPerCreditForActivity[] = await response.json();
+        setActivityHours(data);
+    }
 
     const populateCourses = async () => {
         const response = await fetch('allocation/courses');
@@ -49,7 +67,15 @@ export const AllocationPlan = () => {
         populateLecturers();
         populateAllocationCells();
         setLoading(false);
+        fetchActivityHours();
     }, []);
+
+    useEffect(() => {
+        if (activityHours) {
+            const foundActivity = activityHours.find(activity => activity.activity = 5);
+            setGroupDiscussionHours(foundActivity?.noOfHoursPerCredit ?? 0);
+        }
+    }, [activityHours]);
 
     const setCourseCredits = (value: string, item: AllocationCell, courseIndex: number) => {
         item.CreditsAllocation = parseFloat(value);
@@ -87,6 +113,9 @@ export const AllocationPlan = () => {
 
             const tutorialHrs = (course.tutorialHrs / course.credits) * item.CreditsAllocation;
             item.TutorialHours = calculateTotalTutorialHours(tutorialHrs);
+
+            const smallGroupDiscussionHrs = groupDiscussionHours * item.CreditsAllocation;
+            item.DiscussionHours = calculateTotalSmallGroupDiscussionHours(smallGroupDiscussionHrs);
 
             //TODO: check calculation
             const labHrs = (course.practicalHrs / course.credits) * item.CreditsAllocation;
@@ -137,6 +166,7 @@ export const AllocationPlan = () => {
             sum += array[i] && array[i].TutorialHours ? array[i].TutorialHours : 0;
             sum += array[i] && array[i].LabHours ? array[i].LabHours : 0;
             sum += array[i] && array[i].AssignmentHours ? array[i].AssignmentHours : 0;
+            sum += array[i] && array[i].DiscussionHours ? array[i].DiscussionHours : 0;
         }
         return Math.round(sum * 100) / 100;
     };
@@ -153,6 +183,11 @@ export const AllocationPlan = () => {
             },
             body: JSON.stringify(allocationCells),
         });
+        navigate('/view_allocation_plan');
+    };
+
+    const handleCancel = () => {
+        navigate('/'); // Replace '/home' with the actual home route in your app
     };
 
     console.log("allocationCells", allocationCells);
@@ -235,9 +270,9 @@ export const AllocationPlan = () => {
                 renderAllocationPlan()
             )}
             <Button variant="contained" color="success" onClick={() => handleSave()}>
-                Save
+                NEXT
             </Button>
-            <CancelButton variant="text">Cancel</CancelButton>
+            <CancelButton variant="text" onClick={handleCancel}>Cancel</CancelButton>
         </div>
     );
 };

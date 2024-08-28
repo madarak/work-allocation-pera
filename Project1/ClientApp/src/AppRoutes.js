@@ -1,6 +1,7 @@
 /* eslint-disable react/react-in-jsx-scope */
 import { Allocation } from "./components/Allocation";
 import { AllocationPlan } from "./components/AllocationPlan";
+import { ViewAllocationPlan } from "./components/ViewAllocationPlan";
 import { Home } from "./components/Home";
 
 const AppRoutes = [
@@ -15,6 +16,10 @@ const AppRoutes = [
     {
         path: "/plan",
         element: <AllocationPlan />,
+    },
+    {
+        path: "/view_allocation_plan",
+        element: <ViewAllocationPlan />,
     },
 ];
 

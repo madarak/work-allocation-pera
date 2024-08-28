@@ -15,6 +15,10 @@ export const calculateTotalLabHours = (labHrs: number, role: string) => {
 	return labHrs + hrsByRole;
 };
 
+export const calculateTotalSmallGroupDiscussionHours = (smallGroupDiscussionHrs: number) => {
+	const preparaionHours = CalculatePreparaionHours(smallGroupDiscussionHrs);
+	return smallGroupDiscussionHrs + preparaionHours;
+};
 //TODO: check the equation -> t=gw
 const calculateTotalLabHoursByRole = (labHrs: number, role: string) => {
 	switch (role) {
