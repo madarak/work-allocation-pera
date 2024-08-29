@@ -156,6 +156,15 @@ namespace Project1.Controllers
             return Ok(lecturerAllocations);
         }
 
+        [HttpGet("get-allocations/{lecturerId}")]
+        public async Task<IActionResult> GetAllocationsForLecturer(string lecturerId)
+        {
+            var allocations = await _context.AllocationCells
+                .Where(ac => ac.LecturerId.ToString() == lecturerId)
+                .ToListAsync();
+
+            return Ok(allocations);
+        }
 
     }
 }

@@ -63,6 +63,7 @@ export const ViewAllocationPlan = () => {
                                 >
                                     Edit
                                 </Button>
+
                             </TableCell>
                         )}
                     </TableRow>

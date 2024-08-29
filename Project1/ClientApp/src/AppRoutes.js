@@ -2,6 +2,7 @@
 import { Allocation } from "./components/Allocation";
 import { AllocationPlan } from "./components/AllocationPlan";
 import { ViewAllocationPlan } from "./components/ViewAllocationPlan";
+import { EditAllocationPlan } from "./components/EditAllocationPlan";
 import { Home } from "./components/Home";
 
 const AppRoutes = [
@@ -21,6 +22,12 @@ const AppRoutes = [
         path: "/view_allocation_plan",
         element: <ViewAllocationPlan />,
     },
+    {
+        path: "/edit-allocation/:lecturerId",
+        element: <EditAllocationPlan />,
+    },
+
+
 ];
 
 export default AppRoutes;
